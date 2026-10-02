@@ -1,5 +1,5 @@
-import { WARNING_THRESHOLD_PERCENT } from '@/src/constants/limits';
-import type { UsageStatus } from '@/src/types/usage';
+import { WARNING_THRESHOLD_PERCENT } from '@/constants/limits';
+import type { UsageStatus } from '@/types/usage';
 
 export function calculateProgress(
   usedSeconds: number,

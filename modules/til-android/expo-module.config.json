@@ -1,0 +1,9 @@
+{
+  "platforms": ["apple", "android", "web"],
+  "apple": {
+    "modules": ["TilAndroidModule"]
+  },
+  "android": {
+    "modules": ["expo.modules.tilandroid.TilAndroidModule"]
+  }
+}
