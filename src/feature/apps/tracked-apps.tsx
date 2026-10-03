@@ -11,10 +11,11 @@ import {
   StyleSheet,
   Text,
   View,
-  ActivityIndicator,
 } from 'react-native';
 
 import { Screen } from '@/components/Screen';
+import { SkeletonList } from '@/components/Skeleton';
+import { EmptyState } from '@/components/States';
 
 import {
   colors,
@@ -428,26 +429,17 @@ export default function TrackedAppsScreen() {
 
         {loading ? (
 
-          <View style={styles.loading}>
-            <ActivityIndicator
-              size="large"
-            />
-          </View>
+          <SkeletonList />
 
         ) : apps.length === 0 ? (
 
-          <View style={styles.empty}>
+          <EmptyState
+            actionLabel="Add an App"
+            onAction={() => {
 
-            <Text style={styles.emptyTitle}>
-              No tracked apps
-            </Text>
-
-            <Text style={styles.emptyText}>
-              Add an app to start managing
-              your screen-time budget.
-            </Text>
-
-          </View>
+              router.push('/add-app');
+            }}
+          />
 
         ) : (
 

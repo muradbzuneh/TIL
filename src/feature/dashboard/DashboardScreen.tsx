@@ -5,7 +5,6 @@ import {
 } from 'react';
 
 import {
-  ActivityIndicator,
   ScrollView,
   StyleSheet,
   Text,
@@ -21,7 +20,18 @@ import {
 import {
   Button,
 } from '@/components/Button';
+
+import { useRouter } from 'expo-router';
 import { Icon } from '@/components/Icon';
+import {
+  SkeletonBlock,
+  SkeletonCard,
+  SkeletonList,
+} from '@/components/Skeleton';
+import {
+  EmptyState,
+  ErrorState,
+} from '@/components/States';
 
 import {
   useDatabase,
@@ -52,6 +62,7 @@ import {
 export default function DashboardScreen() {
 
   const db = useDatabase();
+  const router = useRouter();
 
   const [
     dashboard,
@@ -150,49 +161,56 @@ export default function DashboardScreen() {
 
   if (loading && !dashboard) {
     return (
-      <Screen scroll={false}>
-        <View
-          style={{
-            flex: 1,
-            alignItems: 'center',
-            justifyContent: 'center',
+      <Screen>
+        <ScrollView
+          contentContainerStyle={{
+            padding: spacing.lg,
+            paddingBottom: 40,
           }}
         >
-          <ActivityIndicator
-            size="large"
-            color={colors.blue}
+          <SkeletonBlock
+            width={120}
+            height={11}
           />
-        </View>
+
+          <SkeletonBlock
+            width="45%"
+            height={26}
+            style={{
+              marginTop: 10,
+            }}
+          />
+
+          <SkeletonCard
+            rows={4}
+            style={{
+              marginTop: spacing.md,
+            }}
+          />
+
+          <SkeletonList />
+        </ScrollView>
       </Screen>
     );
   }
 
   if (!dashboard) {
     return (
-      <Screen scroll={false}>
+      <Screen>
         <View
           style={{
             flex: 1,
-            alignItems: 'center',
             justifyContent: 'center',
-            gap: 16,
+            padding: spacing.lg,
           }}
         >
-          <Text
-            style={{
-              color: colors.danger,
-              textAlign: 'center',
-              paddingHorizontal: 28,
-            }}
-          >
-            {error ??
-              'Unable to load the dashboard.'}
-          </Text>
-
-          <Button
-            label="Retry"
-            icon="refresh"
-            onPress={refresh}
+          <ErrorState
+            title="Couldn't load the dashboard"
+            message={
+              error ??
+              'Your saved limits are safe.'
+            }
+            onRetry={refresh}
           />
         </View>
       </Screen>
@@ -496,11 +514,13 @@ export default function DashboardScreen() {
 
         {
           dashboard.apps.length === 0 ? (
-            <Card muted>
-              <BodyText
-                text="No tracked apps yet. Open Apps to add your first one."
-              />
-            </Card>
+            <EmptyState
+              actionLabel="Add an App"
+              onAction={() => {
+
+                router.push('/add-app');
+              }}
+            />
           ) : (
             dashboard.apps.map(
               (app) => (
