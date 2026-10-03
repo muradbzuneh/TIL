@@ -5,12 +5,17 @@ import type {
   PermissionStatus,
 } from './permissionService';
 
-class AndroidPermissionService implements PermissionService {
+class AndroidPermissionService
+  implements PermissionService {
 
   getPermissionStatus(): PermissionStatus {
     return {
-      usageAccess: this.isUsageAccessGranted(),
-      overlay: this.isOverlayPermissionGranted(),
+      usageAccess:
+        this.isUsageAccessGranted(),
+      overlay:
+        this.isOverlayPermissionGranted(),
+      accessibility:
+        this.isAccessibilityServiceEnabled(),
     };
   }
 
@@ -28,6 +33,14 @@ class AndroidPermissionService implements PermissionService {
 
   openOverlaySettings(): void {
     TilAndroid.openOverlaySettings();
+  }
+
+  isAccessibilityServiceEnabled(): boolean {
+    return TilAndroid.isAccessibilityServiceEnabled();
+  }
+
+  openAccessibilitySettings(): void {
+    TilAndroid.openAccessibilitySettings();
   }
 }
 

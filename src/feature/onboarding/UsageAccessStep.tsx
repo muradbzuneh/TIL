@@ -6,7 +6,6 @@ import {
 import {
   ActivityIndicator,
   Pressable,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
@@ -16,6 +15,10 @@ import {
 import {
   useRouter,
 } from 'expo-router';
+
+import { Screen } from '@/components/Screen';
+
+import { colors } from '@/theme';
 
 import { permissionService } from '@/services/permission';
 
@@ -59,9 +62,7 @@ export default function UsageAccessStep() {
   }, []);
 
   return (
-    <SafeAreaView
-      style={styles.container}
-    >
+    <Screen>
       <ScrollView
         contentContainerStyle={
           styles.content
@@ -137,7 +138,7 @@ export default function UsageAccessStep() {
           </Text>
         </Pressable>
       </View>
-    </SafeAreaView>
+    </Screen>
   );
 }
 
@@ -145,7 +146,7 @@ const styles = StyleSheet.create({
 
   container: {
     flex: 1,
-    backgroundColor: '#F5F7FA',
+    backgroundColor: colors.background,
   },
 
   content: {
@@ -155,7 +156,7 @@ const styles = StyleSheet.create({
   },
 
   step: {
-    color: '#208AEF',
+    color: colors.blue,
     fontWeight: '700',
   },
 
@@ -163,25 +164,25 @@ const styles = StyleSheet.create({
     marginTop: 10,
     fontSize: 28,
     fontWeight: '800',
-    color: '#0F172A',
+    color: colors.text,
   },
 
   body: {
     marginTop: 14,
     lineHeight: 22,
     fontSize: 16,
-    color: '#475569',
+    color: colors.textSecondary,
   },
 
   statusCard: {
     marginTop: 26,
     padding: 18,
     borderRadius: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.surface,
   },
 
   statusLabel: {
-    color: '#64748B',
+    color: colors.textSecondary,
   },
 
   statusValue: {
@@ -191,11 +192,11 @@ const styles = StyleSheet.create({
   },
 
   granted: {
-    color: '#16A34A',
+    color: colors.success,
   },
 
   denied: {
-    color: '#DC2626',
+    color: colors.danger,
   },
 
   footer: {
@@ -207,11 +208,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 14,
-    backgroundColor: '#208AEF',
+    backgroundColor: colors.blue,
   },
 
   buttonText: {
-    color: '#FFFFFF',
+    color: colors.surface,
     fontSize: 16,
     fontWeight: '700',
   },
@@ -224,7 +225,7 @@ const styles = StyleSheet.create({
   },
 
   linkText: {
-    color: '#64748B',
+    color: colors.textSecondary,
     fontSize: 15,
     fontWeight: '700',
   },

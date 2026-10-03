@@ -44,6 +44,12 @@ export type TilAndroidModuleType = {
   getTodayUsageForPackages(
     packageNames: string[]
   ): NativeBatchUsageResult;
+
+  setLockedApps(lockedApps: string[]): void;
+
+  isAccessibilityServiceEnabled(): boolean;
+
+  openAccessibilitySettings(): void;
 };
 
 const TilAndroid =

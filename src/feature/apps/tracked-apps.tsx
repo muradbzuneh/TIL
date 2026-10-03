@@ -7,13 +7,18 @@ import {
 import {
   Alert,
   Pressable,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
   View,
   ActivityIndicator,
 } from 'react-native';
+
+import { Screen } from '@/components/Screen';
+
+import {
+  colors,
+} from '@/theme';
 
 import {
   useRouter,
@@ -347,10 +352,7 @@ export default function TrackedAppsScreen() {
   if (editingApp) {
 
     return (
-      <SafeAreaView
-        style={styles.container}
-      >
-
+      <Screen>
         <ScrollView
           contentContainerStyle={
             styles.content
@@ -363,7 +365,7 @@ export default function TrackedAppsScreen() {
             }
           >
             <Text style={styles.back}>
-              ← Back
+              â† Back
             </Text>
           </Pressable>
 
@@ -392,15 +394,12 @@ export default function TrackedAppsScreen() {
 
         </ScrollView>
 
-      </SafeAreaView>
+      </Screen>
     );
   }
 
   return (
-    <SafeAreaView
-      style={styles.container}
-    >
-
+    <Screen>
       <ScrollView
         contentContainerStyle={
           styles.content
@@ -494,7 +493,7 @@ export default function TrackedAppsScreen() {
 
       </ScrollView>
 
-    </SafeAreaView>
+    </Screen>
   );
 }
 
@@ -639,7 +638,7 @@ function TrackedAppCard({
         </Text>
 
         <Text style={styles.chevron}>
-          ›
+          â€º
         </Text>
 
       </Pressable>
@@ -731,7 +730,7 @@ const styles =
 
     container: {
       flex: 1,
-      backgroundColor: '#F5F7FA',
+      backgroundColor: colors.background,
     },
 
     content: {
@@ -741,20 +740,20 @@ const styles =
 
     back: {
       marginBottom: 20,
-      color: '#208AEF',
+      color: colors.blue,
       fontWeight: '700',
     },
 
     title: {
       fontSize: 28,
       fontWeight: '800',
-      color: '#0F172A',
+      color: colors.text,
     },
 
     description: {
       marginTop: 6,
       lineHeight: 20,
-      color: '#64748B',
+      color: colors.textSecondary,
     },
 
     selectedApp: {
@@ -762,20 +761,20 @@ const styles =
       marginBottom: 24,
       fontSize: 18,
       fontWeight: '700',
-      color: '#208AEF',
+      color: colors.blue,
     },
 
     addButton: {
       marginTop: 20,
       height: 50,
-      borderRadius: 12,
+      borderRadius: 18,
       alignItems: 'center',
       justifyContent: 'center',
-      backgroundColor: '#208AEF',
+      backgroundColor: colors.blue,
     },
 
     addText: {
-      color: '#FFFFFF',
+      color: colors.surface,
       fontWeight: '700',
     },
 
@@ -788,28 +787,28 @@ const styles =
       marginTop: 30,
       padding: 24,
       alignItems: 'center',
-      borderRadius: 16,
-      backgroundColor: '#FFFFFF',
+      borderRadius: 22,
+      backgroundColor: colors.surface,
     },
 
     emptyTitle: {
       fontSize: 18,
       fontWeight: '800',
-      color: '#0F172A',
+      color: colors.text,
     },
 
     emptyText: {
       marginTop: 8,
       textAlign: 'center',
       lineHeight: 20,
-      color: '#64748B',
+      color: colors.textSecondary,
     },
 
     card: {
       marginTop: 12,
       padding: 16,
-      borderRadius: 16,
-      backgroundColor: '#FFFFFF',
+      borderRadius: 22,
+      backgroundColor: colors.surface,
     },
 
     cardHeader: {
@@ -820,20 +819,20 @@ const styles =
     chevron: {
       marginLeft: 8,
       fontSize: 22,
-      color: '#94A3B8',
+      color: colors.textMuted,
     },
 
     unverified: {
-      color: '#64748B',
+      color: colors.textSecondary,
     },
 
     icon: {
       width: 44,
       height: 44,
-      borderRadius: 12,
+      borderRadius: 18,
       alignItems: 'center',
       justifyContent: 'center',
-      backgroundColor: '#E0F2FE',
+      backgroundColor: colors.infoSoft,
     },
 
     cardInfo: {
@@ -844,37 +843,37 @@ const styles =
     appName: {
       fontSize: 16,
       fontWeight: '800',
-      color: '#0F172A',
+      color: colors.text,
     },
 
     source: {
       marginTop: 3,
       fontSize: 12,
-      color: '#94A3B8',
+      color: colors.textMuted,
     },
 
     status: {
       fontSize: 12,
       fontWeight: '800',
-      color: '#334155',
+      color: colors.textSecondary,
     },
 
     warning: {
-      color: '#D97706',
+      color: colors.warning,
     },
 
     reached: {
-      color: '#DC2626',
+      color: colors.danger,
     },
 
     used: {
       marginTop: 16,
-      color: '#475569',
+      color: colors.textSecondary,
     },
 
     limit: {
       marginTop: 5,
-      color: '#475569',
+      color: colors.textSecondary,
     },
 
     actions: {
@@ -888,12 +887,12 @@ const styles =
       marginTop: 14,
       alignItems: 'center',
       justifyContent: 'center',
-      borderRadius: 10,
+      borderRadius: 14,
       backgroundColor: '#EDE9FE',
     },
 
     timerButtonActive: {
-      backgroundColor: '#DC2626',
+      backgroundColor: colors.danger,
     },
 
     timerText: {
@@ -902,34 +901,34 @@ const styles =
     },
 
     timerTextActive: {
-      color: '#FFFFFF',
+      color: colors.surface,
     },
 
     editButton: {
       flex: 1,
       height: 44,
-      borderRadius: 10,
+      borderRadius: 14,
       alignItems: 'center',
       justifyContent: 'center',
-      backgroundColor: '#E0F2FE',
+      backgroundColor: colors.infoSoft,
     },
 
     editText: {
-      color: '#0369A1',
+      color: colors.blue,
       fontWeight: '700',
     },
 
     removeButton: {
       flex: 1,
       height: 44,
-      borderRadius: 10,
+      borderRadius: 14,
       alignItems: 'center',
       justifyContent: 'center',
-      backgroundColor: '#FEE2E2',
+      backgroundColor: colors.dangerSoft,
     },
 
     removeText: {
-      color: '#DC2626',
+      color: colors.danger,
       fontWeight: '700',
     },
 
@@ -938,6 +937,6 @@ const styles =
     },
 
     disabledText: {
-      color: '#64748B',
+      color: colors.textSecondary,
     },
   });

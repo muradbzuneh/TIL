@@ -29,6 +29,10 @@ import {
   buildGlobalUsage,
 } from '@/feature/limits/globalLimitService';
 
+import {
+  applyLockState,
+} from '@/feature/limits/lockStateService';
+
 import type {
   DashboardSummary,
   TrackedAppUsage,
@@ -84,6 +88,13 @@ export async function buildDashboard(
     await getActiveManualSession(
       db
     );
+
+  /*
+   * Keep the native blocker in sync with what the
+   * dashboard just calculated, so an app that reached
+   * its limit cannot be opened until the daily reset.
+   */
+  applyLockState(appUsage);
 
   return {
     date,

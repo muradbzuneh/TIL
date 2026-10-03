@@ -20,7 +20,8 @@ export async function resetUsageData(
  * Settings -> Delete local data.
  *
  * Returns TIL to a fresh install state:
- * no tracked apps, no usage and no global limit.
+ * no tracked apps, no usage, no global limit and
+ * onboarding runs again on next launch.
  */
 export async function deleteAllLocalData(
   db: SQLiteDatabase
@@ -38,6 +39,7 @@ export async function deleteAllLocalData(
     SET
       daily_limit_seconds = 0,
       is_enabled = 0,
+      onboarding_completed = 0,
       updated_at = ?
     WHERE id = 1
     `,

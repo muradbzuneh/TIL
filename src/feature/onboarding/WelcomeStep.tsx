@@ -1,6 +1,5 @@
 import {
   Pressable,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
@@ -11,6 +10,10 @@ import {
   useRouter,
 } from 'expo-router';
 
+import { Screen } from '@/components/Screen';
+
+import { colors } from '@/theme';
+
 import { APP_NAME } from '@/constants/app';
 
 export default function WelcomeStep() {
@@ -19,9 +22,7 @@ export default function WelcomeStep() {
     useRouter();
 
   return (
-    <SafeAreaView
-      style={styles.container}
-    >
+    <Screen>
       <ScrollView
         contentContainerStyle={
           styles.content
@@ -63,7 +64,7 @@ export default function WelcomeStep() {
           </Text>
         </Pressable>
       </View>
-    </SafeAreaView>
+    </Screen>
   );
 }
 
@@ -71,7 +72,7 @@ const styles = StyleSheet.create({
 
   container: {
     flex: 1,
-    backgroundColor: '#F5F7FA',
+    backgroundColor: colors.background,
   },
 
   content: {
@@ -89,7 +90,7 @@ const styles = StyleSheet.create({
   },
 
   badgeText: {
-    color: '#0369A1',
+    color: colors.blue,
     fontWeight: '800',
   },
 
@@ -97,14 +98,14 @@ const styles = StyleSheet.create({
     marginTop: 18,
     fontSize: 30,
     fontWeight: '800',
-    color: '#0F172A',
+    color: colors.text,
   },
 
   body: {
     marginTop: 14,
     lineHeight: 22,
     fontSize: 16,
-    color: '#475569',
+    color: colors.textSecondary,
   },
 
   footer: {
@@ -116,11 +117,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 14,
-    backgroundColor: '#208AEF',
+    backgroundColor: colors.blue,
   },
 
   buttonText: {
-    color: '#FFFFFF',
+    color: colors.surface,
     fontSize: 16,
     fontWeight: '700',
   },

@@ -20,6 +20,45 @@ class TilAndroidModule : Module() {
         Name("TilAndroid")
 
         // =========================================================
+        // App blocking
+        // =========================================================
+
+        Function("setLockedApps") {
+                lockedApps: List<String> ->
+
+            LockRegistry.update(lockedApps)
+
+            Unit
+        }
+
+        Function("isAccessibilityServiceEnabled") {
+            val context = appContext.reactContext
+                ?: return@Function false
+
+            isAccessibilityServiceEnabled(context)
+        }
+
+        Function("openAccessibilitySettings") {
+            val context = appContext.reactContext
+
+            if (context != null) {
+                runCatching {
+                    context.startActivity(
+                        Intent(
+                            Settings.ACTION_ACCESSIBILITY_SETTINGS
+                        ).apply {
+                            addFlags(
+                                Intent.FLAG_ACTIVITY_NEW_TASK
+                            )
+                        }
+                    )
+                }
+
+                Unit
+            }
+        }
+
+        // =========================================================
         // Usage Access
         // =========================================================
 
@@ -139,6 +178,43 @@ class TilAndroidModule : Module() {
                 packageNames
             )
         }
+    }
+
+    // =============================================================
+    // ACCESSIBILITY SERVICE (APP BLOCKING)
+    // =============================================================
+
+    private fun isAccessibilityServiceEnabled(
+        context: Context
+    ): Boolean {
+
+        val expected =
+            "${context.packageName}/" +
+            TilAccessibilityService::class.java.name
+
+        val enabled = Settings.Secure.getString(
+            context.contentResolver,
+            Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
+        ) ?: return false
+
+        val splitter = java.text.StringSplitter(':')
+
+        splitter.setString(enabled)
+
+        while (splitter.hasNext()) {
+            val entry = splitter.next()
+
+            if (
+                entry.equals(
+                    expected,
+                    ignoreCase = true
+                )
+            ) {
+                return true
+            }
+        }
+
+        return false
     }
 
     // =============================================================

@@ -1,6 +1,7 @@
 export type PermissionStatus = {
   usageAccess: boolean;
   overlay: boolean;
+  accessibility: boolean;
 };
 
 export interface PermissionService {
@@ -13,4 +14,12 @@ export interface PermissionService {
   isOverlayPermissionGranted(): boolean;
 
   openOverlaySettings(): void;
+
+  /**
+   * Required for blocking apps that reached
+   * their daily limit.
+   */
+  isAccessibilityServiceEnabled(): boolean;
+
+  openAccessibilitySettings(): void;
 }

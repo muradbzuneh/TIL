@@ -6,21 +6,28 @@ import {
 
 import {
   ActivityIndicator,
-  Pressable,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
 
+import { Screen } from '@/components/Screen';
+import {
+  BodyText,
+  Card,
+  CardHeader,
+} from '@/components/Card';
+import {
+  Button,
+} from '@/components/Button';
+import { Icon } from '@/components/Icon';
+
 import {
   useDatabase,
 } from '@/db/useDatabase';
 
-import {
-  getSecondsUntilMidnight,
-} from '@/db/utils';
+import { getSecondsUntilMidnight } from '@/db/utils';
 
 import { buildDashboard } from './dashboardService';
 
@@ -29,6 +36,14 @@ import type {
   TrackedAppUsage,
 } from '@/types/dashboard';
 
+import type { UsageStatus } from '@/types/usage';
+
+import {
+  colors,
+  radius,
+  spacing,
+} from '@/theme';
+
 import {
   formatCountdown,
   formatDuration,
@@ -36,38 +51,34 @@ import {
 
 export default function DashboardScreen() {
 
-  const db =
-    useDatabase();
+  const db = useDatabase();
 
   const [
     dashboard,
     setDashboard,
   ] =
-    useState<
-      DashboardSummary | null
-    >(null);
-
-  const [
-    loading,
-    setLoading,
-  ] =
-    useState(true);
-
-  const [
-    error,
-    setError,
-  ] =
-    useState<string | null>(
+    useState<DashboardSummary | null>(
       null
     );
 
   const [
+    loading,
+    setLoading,
+  ] = useState(true);
+
+  const [
+    error,
+    setError,
+  ] = useState<string | null>(
+    null
+  );
+
+  const [
     resetSeconds,
     setResetSeconds,
-  ] =
-    useState(
-      getSecondsUntilMidnight()
-    );
+  ] = useState(
+    getSecondsUntilMidnight()
+  );
 
   const load =
     useCallback(
@@ -134,130 +145,185 @@ export default function DashboardScreen() {
       );
 
     return () =>
-      clearInterval(
-        interval
-      );
-
+      clearInterval(interval);
   }, []);
 
-  if (
-    loading &&
-    !dashboard
-  ) {
+  if (loading && !dashboard) {
     return (
-      <SafeAreaView
-        style={styles.center}
-      >
-        <ActivityIndicator
-          size="large"
-        />
-
-        <Text style={styles.loadingText}>
-          Loading TIL...
-        </Text>
-      </SafeAreaView>
+      <Screen scroll={false}>
+        <View
+          style={{
+            flex: 1,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <ActivityIndicator
+            size="large"
+            color={colors.blue}
+          />
+        </View>
+      </Screen>
     );
   }
 
   if (!dashboard) {
     return (
-      <SafeAreaView
-        style={styles.center}
-      >
-        <Text style={styles.errorText}>
-          {error ??
-            'Unable to load the dashboard.'}
-        </Text>
-
-        <Pressable
-          style={styles.button}
-          onPress={refresh}
+      <Screen scroll={false}>
+        <View
+          style={{
+            flex: 1,
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 16,
+          }}
         >
-          <Text style={styles.buttonText}>
-            Retry
+          <Text
+            style={{
+              color: colors.danger,
+              textAlign: 'center',
+              paddingHorizontal: 28,
+            }}
+          >
+            {error ??
+              'Unable to load the dashboard.'}
           </Text>
-        </Pressable>
-      </SafeAreaView>
+
+          <Button
+            label="Retry"
+            icon="refresh"
+            onPress={refresh}
+          />
+        </View>
+      </Screen>
     );
   }
 
-  const trackedApps =
-    dashboard.apps.filter(
-      (app) =>
-        app.isLimitEnabled
-    );
-
   const usedApps =
-    trackedApps.filter(
-      (app) =>
-        app.usedSeconds > 0
+    dashboard.apps.filter(
+      (app) => app.usedSeconds > 0
     );
 
   const lockedApps =
-    trackedApps.filter(
+    dashboard.apps.filter(
       (app) => app.isLocked
     );
 
-  /*
-   * Android usage cannot be trusted while
-   * Usage Access is off, so the combined limit
-   * reports "unverified" instead of "normal".
-   */
-  const globalStatus =
+  const globalStatus: UsageStatus =
     dashboard.usageAccessGranted
       ? dashboard.global.status
       : 'unverified';
 
   return (
-    <SafeAreaView
-      style={styles.container}
-    >
+    <Screen>
       <ScrollView
-        contentContainerStyle={
-          styles.content
-        }
+        contentContainerStyle={{
+          padding: spacing.lg,
+          paddingTop: spacing.md,
+          paddingBottom: 40,
+        }}
       >
-        <View style={styles.header}>
-          <Text style={styles.title}>
-            TIL
-          </Text>
+        <Text
+          style={{
+            fontSize: 13,
+            fontWeight: '700',
+            color: colors.blue,
+            letterSpacing: 1,
+          }}
+        >
+          {dashboard.date}
+        </Text>
 
-          <Text style={styles.date}>
-            {dashboard.date}
-          </Text>
-        </View>
+        <Text
+          style={{
+            marginTop: 4,
+            fontSize: 30,
+            fontWeight: '800',
+            letterSpacing: -0.8,
+            color: colors.text,
+          }}
+        >
+          Today
+        </Text>
 
         {
           !dashboard.usageAccessGranted && (
-            <View style={styles.warningCard}>
-              <Text style={styles.warningTitle}>
-                Usage access is off
-              </Text>
+            <Card
+              style={{
+                marginTop: spacing.md,
+                backgroundColor:
+                  colors.warningSoft,
+                borderColor:
+                  'rgba(217,119,6,0.25)',
+              }}
+            >
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: 8,
+                }}
+              >
+                <Icon
+                  name="warning"
+                  size={18}
+                  color={colors.warning}
+                />
 
-              <Text style={styles.warningText}>
-                Android usage stays at 0 until you
-                enable Usage Access in system settings.
-              </Text>
-            </View>
+                <Text
+                  style={{
+                    fontWeight: '700',
+                    color: colors.warning,
+                  }}
+                >
+                  Usage unverified
+                </Text>
+              </View>
+
+              <BodyText
+                text="Android usage stays at 0 until Usage Access is enabled. Grant it from Settings, then refresh."
+                style={{
+                  color: colors.warning,
+                }}
+              />
+            </Card>
           )
         }
 
-        {
-          error && (
-            <View style={styles.warningCard}>
-              <Text style={styles.warningText}>
-                {error}
-              </Text>
-            </View>
-          )
-        }
+        <Card
+          style={{
+            marginTop: spacing.md,
+            padding: spacing.lg,
+          }}
+        >
+          <CardHeader
+            icon={
+              <Icon
+                name="limit"
+                size={16}
+                color={colors.blue}
+              />
+            }
+            title="Combined limit"
+            trailing={
+              <StatusPill
+                status={globalStatus}
+                locked={
+                  dashboard.global.isReached
+                }
+              />
+            }
+          />
 
-        <View style={styles.card}>
-          <Text style={styles.cardLabel}>
-            Combined limit
-          </Text>
-
-          <Text style={styles.bigNumber}>
+          <Text
+            style={{
+              marginTop: 14,
+              fontSize: 34,
+              fontWeight: '800',
+              letterSpacing: -0.9,
+              color: colors.text,
+            }}
+          >
             {formatDuration(
               dashboard.global.usedSeconds
             )}
@@ -265,138 +331,176 @@ export default function DashboardScreen() {
 
           {
             dashboard.global.isEnabled ? (
-              <>
-                <Text style={styles.secondary}>
-                  of{' '}
-                  {formatDuration(
-                    dashboard.global.dailyLimitSeconds
+              <View
+                style={{
+                  marginTop: spacing.sm,
+                  gap: 4,
+                }}
+              >
+                <MetricRow
+                  label="Limit"
+                  value={formatDuration(
+                    dashboard.global
+                      .dailyLimitSeconds
                   )}
-                </Text>
+                />
 
-                <Text style={styles.secondary}>
-                  Remaining:{' '}
-                  {formatDuration(
-                    dashboard.global.remainingSeconds
+                <MetricRow
+                  label="Remaining"
+                  value={formatDuration(
+                    dashboard.global
+                      .remainingSeconds
                   )}
-                </Text>
+                />
 
-                <Text style={styles.secondary}>
-                  Progress:{' '}
-                  {dashboard.global
-                    .progressPercent
-                    .toFixed(1)}
-                  %
-                </Text>
-
-                <Text style={[
-            styles.status,
-            globalStatus ===
-                'reached' &&
-              styles.reached,
-            globalStatus ===
-                'warning' &&
-              styles.warning,
-            globalStatus ===
-                'unverified' &&
-              styles.unverified,
-          ]}
-        >
-          Status:{' '}
-          {globalStatus}
-        </Text>
-              </>
+                <MetricRow
+                  label="Progress"
+                  value={`${dashboard.global.progressPercent.toFixed(
+                    1
+                  )}%`}
+                />
+              </View>
             ) : (
-              <Text style={styles.secondary}>
-                No combined limit is set.
-              </Text>
+              <BodyText
+                text="No combined limit set. Add one from Settings."
+              />
             )
           }
-        </View>
+        </Card>
 
-        <View style={styles.card}>
-          <Text style={styles.cardLabel}>
-            Reset in
-          </Text>
-
-          <Text style={styles.countdown}>
-            {formatCountdown(
-              resetSeconds
-            )}
-          </Text>
-
-          <Text style={styles.secondary}>
-            Usage resets automatically at
-            midnight, so each day starts at zero.
-          </Text>
-        </View>
-
-        <View style={styles.summaryRow}>
-          <SummaryTile
+        <View
+          style={{
+            flexDirection: 'row',
+            gap: 10,
+            marginTop: spacing.md,
+          }}
+        >
+          <Tile
+            icon="apps"
             label="Tracked"
             value={
               dashboard.trackedAppCount
             }
           />
 
-          <SummaryTile
+          <Tile
+            icon="usage"
             label="Used today"
-            value={
-              usedApps.length
-            }
+            value={usedApps.length}
           />
 
-          <SummaryTile
+          <Tile
+            icon="reached"
             label="Locked"
-            value={
-              lockedApps.length
-            }
+            value={lockedApps.length}
           />
         </View>
 
-        <View style={styles.card}>
-          <View style={styles.cardHeader}>
-            <Text style={styles.cardLabel}>
-              Active timers
-            </Text>
+        <Card
+          style={{
+            marginTop: spacing.md,
+          }}
+        >
+          <CardHeader
+            icon={
+              <Icon
+                name="timer"
+                size={16}
+                color={
+                  dashboard
+                    .activeManualTimerCount > 0
+                    ? colors.blue
+                    : colors.textMuted
+                }
+              />
+            }
+            title="Active timers"
+            trailing={
+              <Text
+                style={{
+                  fontSize: 18,
+                  fontWeight: '800',
+                  color: colors.text,
+                }}
+              >
+                {
+                  dashboard
+                    .activeManualTimerCount
+                }
+              </Text>
+            }
+          />
 
-            <Text style={styles.timerCount}>
-              {dashboard.activeManualTimerCount}
+          <BodyText
+            text={
+              dashboard
+                .activeManualTimerCount === 0
+                ? 'No manual timer is running. Start one from a manual app card in Apps.'
+                : 'A manual timer is running. Its elapsed time is added to that app when you stop it.'
+            }
+          />
+        </Card>
+
+        <Card
+          style={{
+            marginTop: spacing.md,
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 14,
+          }}
+        >
+          <View
+            style={{
+              flex: 1,
+            }}
+          >
+            <CardHeader
+              title="Reset in"
+            />
+
+            <Text
+              style={{
+                marginTop: 8,
+                fontSize: 26,
+                fontWeight: '800',
+                letterSpacing: -0.5,
+                color: colors.text,
+              }}
+            >
+              {formatCountdown(
+                resetSeconds
+              )}
             </Text>
           </View>
 
-          {
-            dashboard
-              .activeManualTimerCount === 0 ? (
-              <Text style={styles.secondary}>
-                No manual timer is running. Start one
-                from a manual app card in Apps.
-              </Text>
-            ) : (
-              <Text style={styles.secondary}>
-                A manual timer is running. Elapsed time
-                is added to that app&apos;s usage when
-                you stop it.
-              </Text>
-            )
-          }
-        </View>
+          <Icon
+            name="refresh"
+            size={26}
+            color={
+              colors.textMuted
+            }
+          />
+        </Card>
 
-        <Text style={styles.sectionTitle}>
+        <Text
+          style={{
+            marginTop: spacing.xl,
+            marginBottom: spacing.sm,
+            fontSize: 18,
+            fontWeight: '800',
+            color: colors.text,
+          }}
+        >
           Tracked apps
         </Text>
 
         {
           dashboard.apps.length === 0 ? (
-            <View style={styles.emptyCard}>
-              <Text style={styles.emptyTitle}>
-                No tracked apps
-              </Text>
-
-              <Text style={styles.emptyText}>
-                Add an app to start managing your
-                screen-time budget.
-              </Text>
-            </View>
+            <Card muted>
+              <BodyText
+                text="No tracked apps yet. Open Apps to add your first one."
+              />
+            </Card>
           ) : (
             dashboard.apps.map(
               (app) => (
@@ -409,43 +513,170 @@ export default function DashboardScreen() {
           )
         }
 
-        <Pressable
-          style={styles.button}
+        <Button
+          label="Refresh"
+          variant="secondary"
+          icon="refresh"
+          loading={loading}
           onPress={refresh}
-        >
-          {
-            loading ? (
-              <ActivityIndicator
-                color="#FFFFFF"
-              />
-            ) : (
-              <Text style={styles.buttonText}>
-                Refresh
-              </Text>
-            )
-          }
-        </Pressable>
-
+        />
       </ScrollView>
-    </SafeAreaView>
+    </Screen>
   );
 }
 
-function SummaryTile({
+function MetricRow({
   label,
   value,
 }: {
+  label: string;
+  value: string;
+}) {
+
+  return (
+    <View
+      style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+      }}
+    >
+      <Text
+        style={{
+          fontSize: 14,
+          color: colors.textSecondary,
+        }}
+      >
+        {label}
+      </Text>
+
+      <Text
+        style={{
+          fontSize: 14,
+          fontWeight: '700',
+          color: colors.text,
+        }}
+      >
+        {value}
+      </Text>
+    </View>
+  );
+}
+
+function StatusPill({
+  status,
+  locked,
+}: {
+  status: UsageStatus;
+  locked: boolean;
+}) {
+
+  const tone = statusTone(
+    status,
+    locked
+  );
+
+  return (
+    <View
+      style={[
+        styles.pill,
+        { backgroundColor: tone.bg },
+      ]}
+    >
+      <Icon
+        name={tone.icon}
+        size={13}
+        color={tone.fg}
+      />
+
+      <Text
+        style={[
+          styles.pillLabel,
+          { color: tone.fg },
+        ]}
+      >
+        {locked
+          ? 'reached'
+          : status}
+      </Text>
+    </View>
+  );
+}
+
+function statusTone(
+  status: UsageStatus,
+  locked: boolean
+) {
+
+  if (locked) {
+    return {
+      bg: colors.lockedSoft,
+      fg: colors.danger,
+      icon: 'reached' as const,
+    };
+  }
+
+  if (status === 'warning') {
+    return {
+      bg: colors.warningSoft,
+      fg: colors.warning,
+      icon: 'warning' as const,
+    };
+  }
+
+  if (status === 'unverified') {
+    return {
+      bg: '#E2E8F0',
+      fg: colors.textSecondary,
+      icon: 'warning' as const,
+    };
+  }
+
+  return {
+    bg: colors.successSoft,
+    fg: colors.success,
+    icon: 'limit' as const,
+  };
+}
+
+function Tile({
+  icon,
+  label,
+  value,
+}: {
+  icon: 'apps' | 'usage' | 'reached';
   label: string;
   value: number;
 }) {
 
   return (
-    <View style={styles.tile}>
-      <Text style={styles.tileValue}>
+    <View
+      style={styles.tile}
+    >
+      <Icon
+        name={icon}
+        size={18}
+        color={colors.blue}
+      />
+
+      <Text
+        style={{
+          marginTop: 8,
+          fontSize: 22,
+          fontWeight: '800',
+          color: colors.text,
+        }}
+      >
         {value}
       </Text>
 
-      <Text style={styles.tileLabel}>
+      <Text
+        style={{
+          marginTop: 2,
+          fontSize: 12,
+          color: colors.textMuted,
+        }}
+      >
         {label}
       </Text>
     </View>
@@ -459,266 +690,118 @@ function AppRow({
 }) {
 
   return (
-    <View style={styles.appCard}>
-      <View style={styles.appHeader}>
-        <Text style={styles.appName}>
+    <Card
+      style={{
+        marginBottom: 10,
+      }}
+    >
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 10,
+        }}
+      >
+        <View
+          style={{
+            width: 34,
+            height: 34,
+            borderRadius: radius.sm,
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor:
+              colors.infoSoft,
+          }}
+        >
+          <Text
+            style={{
+              fontWeight: '800',
+              color: colors.blue,
+            }}
+          >
+            {app.appName
+              .charAt(0)
+              .toUpperCase()}
+          </Text>
+        </View>
+
+        <Text
+          style={{
+            flex: 1,
+            fontSize: 16,
+            fontWeight: '700',
+            color: colors.text,
+          }}
+        >
           {app.appName}
         </Text>
 
-        <Text
-          style={[
-            styles.status,
-            app.isLocked &&
-              styles.reached,
-            app.status ===
-                'warning' &&
-              styles.warning,
-            app.status ===
-                'unverified' &&
-              styles.unverified,
-          ]}
-        >
-          {app.isLocked
-            ? 'locked'
-            : app.status}
-        </Text>
+        <StatusPill
+          status={app.status}
+          locked={app.isLocked}
+        />
       </View>
 
-      <Text style={styles.secondary}>
-        Used:{' '}
-        {formatDuration(
-          app.usedSeconds
-        )}
-      </Text>
+      <View
+        style={{
+          marginTop: 12,
+          gap: 3,
+        }}
+      >
+        <MetricRow
+          label="Used"
+          value={formatDuration(
+            app.usedSeconds
+          )}
+        />
 
-      {
-        app.isLimitEnabled && (
-          <>
-            <Text style={styles.secondary}>
-              Limit:{' '}
-              {formatDuration(
-                app.dailyLimitSeconds
-              )}
-            </Text>
+        {
+          app.isLimitEnabled ? (
+            <>
+              <MetricRow
+                label="Limit"
+                value={formatDuration(
+                  app.dailyLimitSeconds
+                )}
+              />
 
-            <Text style={styles.secondary}>
-              Remaining:{' '}
-              {formatDuration(
-                app.remainingSeconds
-              )}
-            </Text>
-          </>
-        )
-      }
-    </View>
+              <MetricRow
+                label="Remaining"
+                value={formatDuration(
+                  app.remainingSeconds
+                )}
+              />
+            </>
+          ) : null
+        }
+      </View>
+    </Card>
   );
 }
 
 const styles = StyleSheet.create({
 
-  container: {
-    flex: 1,
-    backgroundColor: '#F5F7FA',
-  },
-
-  content: {
-    padding: 16,
-    paddingBottom: 40,
-  },
-
-  center: {
-    flex: 1,
+  pill: {
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    gap: 4,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 999,
   },
 
-  loadingText: {
-    marginTop: 12,
-    color: '#64748B',
-  },
-
-  errorText: {
-    color: '#DC2626',
-    textAlign: 'center',
-    paddingHorizontal: 24,
-  },
-
-  header: {
-    marginTop: 8,
-  },
-
-  title: {
-    fontSize: 30,
-    fontWeight: '800',
-    color: '#0F172A',
-  },
-
-  date: {
-    marginTop: 4,
-    color: '#64748B',
-  },
-
-  warningCard: {
-    marginTop: 16,
-    padding: 16,
-    borderRadius: 16,
-    backgroundColor: '#FEF3C7',
-  },
-
-  warningTitle: {
-    fontWeight: '800',
-    color: '#92400E',
-  },
-
-  warningText: {
-    marginTop: 6,
-    lineHeight: 20,
-    color: '#92400E',
-  },
-
-  card: {
-    marginTop: 16,
-    padding: 18,
-    borderRadius: 16,
-    backgroundColor: '#FFFFFF',
-  },
-
-  cardLabel: {
-    color: '#64748B',
-  },
-
-  bigNumber: {
-    marginTop: 10,
-    fontSize: 32,
-    fontWeight: '800',
-    color: '#0F172A',
-  },
-
-  countdown: {
-    marginTop: 6,
-    fontSize: 28,
-    fontWeight: '800',
-    color: '#0F172A',
-  },
-
-  secondary: {
-    marginTop: 5,
-    color: '#475569',
-  },
-
-  status: {
-    marginTop: 8,
+  pillLabel: {
+    fontSize: 11,
     fontWeight: '700',
-    color: '#334155',
-  },
-
-  reached: {
-    color: '#DC2626',
-  },
-
-  warning: {
-    color: '#D97706',
-  },
-
-  unverified: {
-    color: '#64748B',
-  },
-
-  cardHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-
-  timerCount: {
-    fontSize: 18,
-    fontWeight: '800',
-    color: '#0F172A',
-  },
-
-  summaryRow: {
-    flexDirection: 'row',
-    gap: 10,
-    marginTop: 16,
   },
 
   tile: {
     flex: 1,
     padding: 14,
-    borderRadius: 16,
-    backgroundColor: '#FFFFFF',
-    alignItems: 'center',
-  },
-
-  tileValue: {
-    fontSize: 22,
-    fontWeight: '800',
-    color: '#0F172A',
-  },
-
-  tileLabel: {
-    marginTop: 4,
-    fontSize: 12,
-    color: '#64748B',
-  },
-
-  sectionTitle: {
-    marginTop: 22,
-    marginBottom: 10,
-    fontSize: 19,
-    fontWeight: '800',
-    color: '#0F172A',
-  },
-
-  emptyCard: {
-    padding: 20,
-    borderRadius: 16,
-    backgroundColor: '#FFFFFF',
-  },
-
-  emptyTitle: {
-    fontSize: 17,
-    fontWeight: '800',
-    color: '#0F172A',
-  },
-
-  emptyText: {
-    marginTop: 6,
-    lineHeight: 20,
-    color: '#64748B',
-  },
-
-  appCard: {
-    marginBottom: 10,
-    padding: 16,
-    borderRadius: 16,
-    backgroundColor: '#FFFFFF',
-  },
-
-  appHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-
-  appName: {
-    flex: 1,
-    fontSize: 17,
-    fontWeight: '700',
-    color: '#0F172A',
-  },
-
-  button: {
-    minHeight: 50,
-    marginTop: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 12,
-    backgroundColor: '#208AEF',
-  },
-
-  buttonText: {
-    color: '#FFFFFF',
-    fontWeight: '700',
+    borderRadius: radius.lg,
+    backgroundColor:
+      colors.surfaceGlass,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
 });

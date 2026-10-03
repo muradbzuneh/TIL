@@ -9,7 +9,6 @@ import {
   ActivityIndicator,
   Alert,
   Pressable,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
@@ -48,6 +47,12 @@ import AppConfirmation from '@/feature/apps/components/AppConfirmation';
 import {
   installedAppsService,
 } from '@/services/app';
+
+import { Screen } from '@/components/Screen';
+
+import {
+  colors,
+} from '@/theme';
 
 export default function AddAppScreen() {
 
@@ -336,9 +341,8 @@ export default function AddAppScreen() {
       );
 
     return (
-      <SafeAreaView
-        style={styles.container}
-      >
+      <Screen>
+
 
         <ScrollView
           contentContainerStyle={
@@ -352,7 +356,7 @@ export default function AddAppScreen() {
             }
           >
             <Text style={styles.back}>
-              ← Back
+              â† Back
             </Text>
           </Pressable>
 
@@ -382,16 +386,15 @@ export default function AddAppScreen() {
 
         </ScrollView>
 
-      </SafeAreaView>
+      </Screen>
     );
   }
 
   if (selectedApp || manualMode) {
 
     return (
-      <SafeAreaView
-        style={styles.container}
-      >
+      <Screen>
+
 
         <ScrollView
           contentContainerStyle={
@@ -403,7 +406,7 @@ export default function AddAppScreen() {
             onPress={handleLimitCancel}
           >
             <Text style={styles.back}>
-              ← Choose another app
+              â† Choose another app
             </Text>
           </Pressable>
 
@@ -426,14 +429,13 @@ export default function AddAppScreen() {
 
         </ScrollView>
 
-      </SafeAreaView>
+      </Screen>
     );
   }
 
   return (
-    <SafeAreaView
-      style={styles.container}
-    >
+    <Screen>
+
 
       <ScrollView
         contentContainerStyle={
@@ -447,7 +449,7 @@ export default function AddAppScreen() {
           }
         >
           <Text style={styles.back}>
-            ← Back
+            â† Back
           </Text>
         </Pressable>
 
@@ -629,7 +631,7 @@ export default function AddAppScreen() {
                     styles.chevron
                   }
                 >
-                  →
+                  â†’
                 </Text>
 
               </Pressable>
@@ -639,7 +641,7 @@ export default function AddAppScreen() {
 
       </ScrollView>
 
-    </SafeAreaView>
+    </Screen>
   );
 }
 
@@ -648,7 +650,7 @@ const styles =
 
     container: {
       flex: 1,
-      backgroundColor: '#F5F7FA',
+      backgroundColor: colors.background,
     },
 
     content: {
@@ -659,27 +661,27 @@ const styles =
     back: {
       fontSize: 15,
       fontWeight: '700',
-      color: '#208AEF',
+      color: colors.blue,
       marginBottom: 20,
     },
 
     title: {
       fontSize: 28,
       fontWeight: '800',
-      color: '#0F172A',
+      color: colors.text,
     },
 
     description: {
       marginTop: 6,
       lineHeight: 20,
-      color: '#64748B',
+      color: colors.textSecondary,
     },
 
     selectedName: {
       marginTop: 12,
       fontSize: 18,
       fontWeight: '700',
-      color: '#208AEF',
+      color: colors.blue,
       marginBottom: 24,
     },
 
@@ -688,27 +690,27 @@ const styles =
       minHeight: 50,
       borderRadius: 12,
       borderWidth: 1,
-      borderColor: '#208AEF',
+      borderColor: colors.blue,
       alignItems: 'center',
       justifyContent: 'center',
     },
 
     manualButtonText: {
-      color: '#208AEF',
+      color: colors.blue,
       fontWeight: '700',
     },
 
     manualBox: {
       marginTop: 12,
       padding: 16,
-      backgroundColor: '#FFFFFF',
+      backgroundColor: colors.surface,
       borderRadius: 16,
     },
 
     fieldLabel: {
       marginBottom: 7,
       fontWeight: '700',
-      color: '#334155',
+      color: colors.textSecondary,
     },
 
     textInput: {
@@ -717,8 +719,8 @@ const styles =
       borderColor: '#CBD5E1',
       borderRadius: 12,
       paddingHorizontal: 14,
-      color: '#0F172A',
-      backgroundColor: '#FFFFFF',
+      color: colors.text,
+      backgroundColor: colors.surface,
     },
 
     continueButton: {
@@ -727,11 +729,11 @@ const styles =
       borderRadius: 12,
       alignItems: 'center',
       justifyContent: 'center',
-      backgroundColor: '#208AEF',
+      backgroundColor: colors.blue,
     },
 
     continueText: {
-      color: '#FFFFFF',
+      color: colors.surface,
       fontWeight: '700',
     },
 
@@ -740,7 +742,7 @@ const styles =
       marginBottom: 10,
       fontSize: 19,
       fontWeight: '800',
-      color: '#0F172A',
+      color: colors.text,
     },
 
     search: {
@@ -749,8 +751,8 @@ const styles =
       borderColor: '#CBD5E1',
       borderRadius: 12,
       paddingHorizontal: 14,
-      color: '#0F172A',
-      backgroundColor: '#FFFFFF',
+      color: colors.text,
+      backgroundColor: colors.surface,
     },
 
     loading: {
@@ -760,7 +762,7 @@ const styles =
 
     loadingText: {
       marginTop: 10,
-      color: '#64748B',
+      color: colors.textSecondary,
     },
 
     appRow: {
@@ -769,7 +771,7 @@ const styles =
       marginTop: 10,
       padding: 14,
       borderRadius: 16,
-      backgroundColor: '#FFFFFF',
+      backgroundColor: colors.surface,
     },
 
     appIcon: {
@@ -778,7 +780,7 @@ const styles =
       borderRadius: 12,
       alignItems: 'center',
       justifyContent: 'center',
-      backgroundColor: '#E0F2FE',
+      backgroundColor: colors.infoSoft,
     },
 
     appInfo: {
@@ -789,18 +791,18 @@ const styles =
     appName: {
       fontSize: 16,
       fontWeight: '700',
-      color: '#0F172A',
+      color: colors.text,
     },
 
     packageName: {
       marginTop: 3,
       fontSize: 11,
-      color: '#94A3B8',
+      color: colors.textMuted,
     },
 
     chevron: {
       marginLeft: 10,
       fontSize: 20,
-      color: '#64748B',
+      color: colors.textSecondary,
     },
   });

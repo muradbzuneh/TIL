@@ -5,7 +5,6 @@ import {
 import {
   ActivityIndicator,
   Pressable,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
@@ -15,6 +14,10 @@ import {
 import {
   useRouter,
 } from 'expo-router';
+
+import { Screen } from '@/components/Screen';
+
+import { colors } from '@/theme';
 
 import { useDatabase } from '@/db/useDatabase';
 import { completeOnboarding } from '@/db/repositories';
@@ -36,9 +39,7 @@ export default function ReadyStep() {
     useState(false);
 
   return (
-    <SafeAreaView
-      style={styles.container}
-    >
+    <Screen>
       <ScrollView
         contentContainerStyle={
           styles.content
@@ -109,7 +110,7 @@ export default function ReadyStep() {
           )}
         </Pressable>
       </View>
-    </SafeAreaView>
+    </Screen>
   );
 }
 
@@ -117,7 +118,7 @@ const styles = StyleSheet.create({
 
   container: {
     flex: 1,
-    backgroundColor: '#F5F7FA',
+    backgroundColor: colors.background,
   },
 
   content: {
@@ -127,7 +128,7 @@ const styles = StyleSheet.create({
   },
 
   step: {
-    color: '#208AEF',
+    color: colors.blue,
     fontWeight: '700',
   },
 
@@ -135,32 +136,32 @@ const styles = StyleSheet.create({
     marginTop: 10,
     fontSize: 28,
     fontWeight: '800',
-    color: '#0F172A',
+    color: colors.text,
   },
 
   body: {
     marginTop: 14,
     lineHeight: 22,
     fontSize: 16,
-    color: '#475569',
+    color: colors.textSecondary,
   },
 
   tipCard: {
     marginTop: 26,
     padding: 18,
     borderRadius: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.surface,
   },
 
   tipTitle: {
     fontWeight: '800',
-    color: '#0F172A',
+    color: colors.text,
   },
 
   tipText: {
     marginTop: 8,
     lineHeight: 20,
-    color: '#64748B',
+    color: colors.textSecondary,
   },
 
   footer: {
@@ -172,11 +173,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 14,
-    backgroundColor: '#208AEF',
+    backgroundColor: colors.blue,
   },
 
   buttonText: {
-    color: '#FFFFFF',
+    color: colors.surface,
     fontSize: 16,
     fontWeight: '700',
   },
