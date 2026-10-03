@@ -1,4 +1,4 @@
-import type { TrackedApp, DailyUsage } from '@/db/repositories';
+import type { TrackedApp, DailyUsage } from '@/database/repositories';
 
 /**
  * Returns the usage that TIL should use for limit calculations.

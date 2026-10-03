@@ -1,1 +1,1 @@
-export { default } from '@/feature/apps/add-app';
+export { default } from '@/features/apps/add-app';

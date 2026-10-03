@@ -1,1 +1,1 @@
-export { default } from '@/feature/apps/tracked-apps';
+export { default } from '@/features/apps/tracked-apps';

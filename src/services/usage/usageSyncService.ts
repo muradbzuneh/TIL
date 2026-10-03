@@ -3,11 +3,11 @@ import type { SQLiteDatabase } from 'expo-sqlite';
 import {
   getTrackedApps,
   upsertSystemUsage,
-} from '@/db/repositories';
+} from '@/database/repositories';
 
 import {
   getLocalDateKey,
-} from '@/db/utils';
+} from '@/database/utils';
 
 import {
   usageService,
