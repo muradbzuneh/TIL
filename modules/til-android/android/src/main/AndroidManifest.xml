@@ -14,28 +14,38 @@
         </intent>
     </queries>
 
-    <!-- Blocking apps that reached their daily limit -->
-    <service
-        android:name="expo.modules.tilandroid.TilAccessibilityService"
-        android:exported="true"
-        android:label="TIL app blocking"
-        android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
-        <intent-filter>
-            <action android:name="android.accessibilityservice.AccessibilityService" />
-        </intent-filter>
+    <!--
+      Components must be declared inside <application>.
+      Declaring them directly under <manifest> fails AAPT
+      with "unexpected element <service>/<activity> found
+      in <manifest>".
+    -->
+    <application>
 
-        <meta-data
-            android:name="android.accessibilityservice"
-            android:resource="@xml/til_accessibility_service" />
-    </service>
+        <!-- Blocking apps that reached their daily limit -->
+        <service
+            android:name="expo.modules.tilandroid.TilAccessibilityService"
+            android:exported="true"
+            android:label="TIL app blocking"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
 
-    <activity
-        android:name="expo.modules.tilandroid.LockActivity"
-        android:excludeFromRecents="true"
-        android:exported="false"
-        android:launchMode="singleTask"
-        android:noHistory="true"
-        android:taskAffinity="com.til.lock"
-        android:theme="@android:style/Theme.DeviceDefault.Light" />
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/til_accessibility_service" />
+        </service>
+
+        <activity
+            android:name="expo.modules.tilandroid.LockActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:launchMode="singleTask"
+            android:noHistory="true"
+            android:taskAffinity="com.til.lock"
+            android:theme="@android:style/Theme.DeviceDefault.Light" />
+
+    </application>
 
 </manifest>
