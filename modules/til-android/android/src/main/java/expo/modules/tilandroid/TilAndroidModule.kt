@@ -197,15 +197,11 @@ class TilAndroidModule : Module() {
             Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
         ) ?: return false
 
-        val splitter = java.text.StringSplitter(':')
+        val splitter = enabled.split(':')
 
-        splitter.setString(enabled)
-
-        while (splitter.hasNext()) {
-            val entry = splitter.next()
-
+        for (entry in splitter) {
             if (
-                entry.equals(
+                entry.trim().equals(
                     expected,
                     ignoreCase = true
                 )
