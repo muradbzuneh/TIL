@@ -6,6 +6,26 @@ export type NativeInstalledApp = {
   iconResourceId: number;
 };
 
+export type NativeUsageResult = {
+  packageName: string;
+  usageSeconds: number;
+  hasUsageAccess: boolean;
+  startTimeMillis: number;
+  endTimeMillis: number;
+  queriedAtMillis: number;
+};
+
+export type NativeBatchUsageResult = {
+  hasUsageAccess: boolean;
+  startTimeMillis: number;
+  endTimeMillis: number;
+  queriedAtMillis: number;
+  apps: {
+    packageName: string;
+    usageSeconds: number;
+  }[];
+};
+
 export type TilAndroidModuleType = {
   isUsageAccessGranted(): boolean;
 
@@ -18,6 +38,12 @@ export type TilAndroidModuleType = {
   getInstalledApps(): NativeInstalledApp[];
 
   isPackageInstalled(packageName: string): boolean;
+
+  getTodayUsage(packageName: string): NativeUsageResult;
+
+  getTodayUsageForPackages(
+    packageNames: string[]
+  ): NativeBatchUsageResult;
 };
 
 const TilAndroid =

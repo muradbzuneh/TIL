@@ -12,3 +12,12 @@ export type UsageStatus =
   | 'normal'
   | 'warning'
   | 'reached';
+
+export type SystemUsageSnapshot = {
+  packageName: string;
+  usageSeconds: number;
+  hasUsageAccess: boolean;
+  startTimeMillis: number;
+  endTimeMillis: number;
+  queriedAtMillis: number;
+};

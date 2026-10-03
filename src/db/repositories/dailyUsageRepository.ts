@@ -20,15 +20,30 @@ type DailyUsageRow = {
   last_synced_at: string | null;
 };
 
-function mapDailyUsage(row: DailyUsageRow): DailyUsage {
+function mapDailyUsage(
+  row: DailyUsageRow
+): DailyUsage {
+
   return {
     id: row.id,
-    trackedAppId: row.tracked_app_id,
-    date: row.date,
-    systemUsageSeconds: row.system_usage_seconds,
-    manualUsageSeconds: row.manual_usage_seconds,
-    totalUsageSeconds: row.total_usage_seconds,
-    lastSyncedAt: row.last_synced_at,
+
+    trackedAppId:
+      row.tracked_app_id,
+
+    date:
+      row.date,
+
+    systemUsageSeconds:
+      row.system_usage_seconds,
+
+    manualUsageSeconds:
+      row.manual_usage_seconds,
+
+    totalUsageSeconds:
+      row.total_usage_seconds,
+
+    lastSyncedAt:
+      row.last_synced_at,
   };
 }
 
@@ -37,18 +52,22 @@ export async function getDailyUsage(
   trackedAppId: number,
   date: string
 ): Promise<DailyUsage | null> {
-  const row = await db.getFirstAsync<DailyUsageRow>(
-    `
-    SELECT *
-    FROM daily_usage
-    WHERE tracked_app_id = ?
-      AND date = ?
-    `,
-    trackedAppId,
-    date
-  );
 
-  return row ? mapDailyUsage(row) : null;
+  const row =
+    await db.getFirstAsync<DailyUsageRow>(
+      `
+      SELECT *
+      FROM daily_usage
+      WHERE tracked_app_id = ?
+        AND date = ?
+      `,
+      trackedAppId,
+      date
+    );
+
+  return row
+    ? mapDailyUsage(row)
+    : null;
 }
 
 export async function upsertDailyUsage(
@@ -61,8 +80,10 @@ export async function upsertDailyUsage(
     lastSyncedAt?: string | null;
   }
 ): Promise<void> {
+
   const totalUsageSeconds =
-    input.systemUsageSeconds + input.manualUsageSeconds;
+    input.systemUsageSeconds +
+    input.manualUsageSeconds;
 
   await db.runAsync(
     `
@@ -78,10 +99,17 @@ export async function upsertDailyUsage(
 
     ON CONFLICT(tracked_app_id, date)
     DO UPDATE SET
-      system_usage_seconds = excluded.system_usage_seconds,
-      manual_usage_seconds = excluded.manual_usage_seconds,
-      total_usage_seconds = excluded.total_usage_seconds,
-      last_synced_at = excluded.last_synced_at
+      system_usage_seconds =
+        excluded.system_usage_seconds,
+
+      manual_usage_seconds =
+        excluded.manual_usage_seconds,
+
+      total_usage_seconds =
+        excluded.total_usage_seconds,
+
+      last_synced_at =
+        excluded.last_synced_at
     `,
     input.trackedAppId,
     input.date,
@@ -89,5 +117,129 @@ export async function upsertDailyUsage(
     input.manualUsageSeconds,
     totalUsageSeconds,
     input.lastSyncedAt ?? null
+  );
+}
+
+/**
+ * Updates only the Android/system usage value.
+ *
+ * This is intentionally separate from the full upsert so
+ * Android synchronization never destroys manual-session data.
+ */
+export async function upsertSystemUsage(
+  db: SQLiteDatabase,
+  input: {
+    trackedAppId: number;
+    date: string;
+    systemUsageSeconds: number;
+    lastSyncedAt?: string | null;
+  }
+): Promise<void> {
+
+  const existing =
+    await getDailyUsage(
+      db,
+      input.trackedAppId,
+      input.date
+    );
+
+  const manualUsageSeconds =
+    existing?.manualUsageSeconds ?? 0;
+
+  const totalUsageSeconds =
+    input.systemUsageSeconds +
+    manualUsageSeconds;
+
+  await db.runAsync(
+    `
+    INSERT INTO daily_usage (
+      tracked_app_id,
+      date,
+      system_usage_seconds,
+      manual_usage_seconds,
+      total_usage_seconds,
+      last_synced_at
+    )
+    VALUES (?, ?, ?, ?, ?, ?)
+
+    ON CONFLICT(tracked_app_id, date)
+    DO UPDATE SET
+      system_usage_seconds =
+        excluded.system_usage_seconds,
+
+      total_usage_seconds =
+        excluded.total_usage_seconds,
+
+      last_synced_at =
+        excluded.last_synced_at
+    `,
+    input.trackedAppId,
+    input.date,
+    input.systemUsageSeconds,
+    manualUsageSeconds,
+    totalUsageSeconds,
+    input.lastSyncedAt ?? null
+  );
+}
+
+export async function addManualUsage(
+  db: SQLiteDatabase,
+  input: {
+    trackedAppId: number;
+    date: string;
+    additionalSeconds: number;
+  }
+): Promise<void> {
+
+  const existing =
+    await getDailyUsage(
+      db,
+      input.trackedAppId,
+      input.date
+    );
+
+  const systemUsageSeconds =
+    existing?.systemUsageSeconds ?? 0;
+
+  const currentManualUsageSeconds =
+    existing?.manualUsageSeconds ?? 0;
+
+  const manualUsageSeconds =
+    currentManualUsageSeconds +
+    Math.max(
+      0,
+      input.additionalSeconds
+    );
+
+  const totalUsageSeconds =
+    systemUsageSeconds +
+    manualUsageSeconds;
+
+  await db.runAsync(
+    `
+    INSERT INTO daily_usage (
+      tracked_app_id,
+      date,
+      system_usage_seconds,
+      manual_usage_seconds,
+      total_usage_seconds,
+      last_synced_at
+    )
+    VALUES (?, ?, ?, ?, ?, ?)
+
+    ON CONFLICT(tracked_app_id, date)
+    DO UPDATE SET
+      manual_usage_seconds =
+        excluded.manual_usage_seconds,
+
+      total_usage_seconds =
+        excluded.total_usage_seconds
+    `,
+    input.trackedAppId,
+    input.date,
+    systemUsageSeconds,
+    manualUsageSeconds,
+    totalUsageSeconds,
+    existing?.lastSyncedAt ?? null
   );
 }
