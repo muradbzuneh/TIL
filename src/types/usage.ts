@@ -9,6 +9,7 @@ export type DailyUsage = {
 };
 
 export type UsageStatus =
+  | 'unverified'
   | 'normal'
   | 'warning'
   | 'reached';

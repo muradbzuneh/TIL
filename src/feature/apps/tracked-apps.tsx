@@ -26,9 +26,11 @@ import {
 import {
   getTrackedApps,
   getDailyUsage,
+  getActiveManualSession,
 } from '@/db/repositories';
 
 import type {
+  ManualSession,
   TrackedApp,
 } from '@/db/repositories';
 
@@ -39,6 +41,11 @@ import {
 import {
   buildTrackedAppUsage,
 } from '@/feature/limits/limitServices';
+
+import {
+  startManualTimer,
+  stopManualTimer,
+} from '@/feature/timer';
 
 import {
   removeApp,
@@ -56,6 +63,10 @@ import LimitForm from '@/feature/apps/components/LimitForm';
 import {
   formatDuration,
 } from '@/utils/time';
+
+import type {
+  UsageStatus,
+} from '@/types/usage';
 
 export default function TrackedAppsScreen() {
 
@@ -85,15 +96,28 @@ export default function TrackedAppsScreen() {
       null
     );
 
+  const [
+    activeSession,
+    setActiveSession,
+  ] =
+    useState<
+      ManualSession | null
+    >(null);
+
   const loadApps =
     useCallback(
       () => {
 
-        return getTrackedApps(db)
+        return Promise.all([
+          getTrackedApps(db),
+          getActiveManualSession(db),
+        ])
 
-          .then((result) => {
+          .then(([result, session]) => {
 
             setApps(result);
+
+            setActiveSession(session);
           })
 
           .catch((error) => {
@@ -117,6 +141,76 @@ export default function TrackedAppsScreen() {
     loadApps();
 
   }, [loadApps]);
+
+  function handleStartTimer(
+    app: TrackedApp
+  ) {
+
+    setLoading(true);
+
+    startManualTimer(db, app.id)
+
+      .then(() => {
+
+        loadApps();
+      })
+
+      .catch((error) => {
+
+        setLoading(false);
+
+        Alert.alert(
+          'Unable to start timer',
+          error instanceof Error
+            ? error.message
+            : 'Something went wrong.'
+        );
+      });
+  }
+
+  function handleStopTimer() {
+
+    if (!activeSession) {
+      return;
+    }
+
+    Alert.alert(
+      'Stop timer?',
+      'The elapsed time is saved as manual usage.',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Stop',
+          onPress: () => {
+
+            setLoading(true);
+
+            stopManualTimer(db)
+
+              .then(() => {
+
+                loadApps();
+              })
+
+              .catch((error) => {
+
+                setLoading(false);
+
+                Alert.alert(
+                  'Unable to stop timer',
+                  error instanceof Error
+                    ? error.message
+                    : 'Something went wrong.'
+                );
+              });
+          },
+        },
+      ]
+    );
+  }
 
   async function handleUpdateLimit(
     value: LimitInputForm
@@ -215,7 +309,7 @@ export default function TrackedAppsScreen() {
                 await removeApp(
                   db,
                   app,
-                  false
+                  isLocked
                 );
 
                 setLoading(true);
@@ -365,11 +459,33 @@ export default function TrackedAppsScreen() {
                 key={app.id}
                 app={app}
                 db={db}
+                isTimerRunning={
+                  activeSession
+                    ? activeSession
+                        .trackedAppId ===
+                      app.id
+                    : false
+                }
                 onEdit={() =>
                   setEditingApp(app)
                 }
                 onRemove={() =>
                   handleRemove(app)
+                }
+                onOpenDetails={() =>
+                  router.push({
+                    pathname:
+                      '/app-details',
+                    params: {
+                      id: String(app.id),
+                    },
+                  })
+                }
+                onStartTimer={() =>
+                  handleStartTimer(app)
+                }
+                onStopTimer={
+                  handleStopTimer
                 }
               />
             )
@@ -385,26 +501,32 @@ export default function TrackedAppsScreen() {
 function TrackedAppCard({
   app,
   db,
+  isTimerRunning,
   onEdit,
   onRemove,
+  onOpenDetails,
+  onStartTimer,
+  onStopTimer,
 }: {
   app: TrackedApp;
   db: ReturnType<
     typeof useDatabase
   >;
+  isTimerRunning: boolean;
   onEdit: () => void;
   onRemove: () => void;
+  onOpenDetails: () => void;
+  onStartTimer: () => void;
+  onStopTimer: () => void;
 }) {
 
   const [
     status,
     setStatus,
   ] =
-    useState<
-      'normal' |
-      'warning' |
-      'reached'
-    >('normal');
+    useState<UsageStatus>(
+      'unverified'
+    );
 
   const [
     usedSeconds,
@@ -463,8 +585,9 @@ function TrackedAppCard({
   return (
     <View style={styles.card}>
 
-      <View
+      <Pressable
         style={styles.cardHeader}
+        onPress={onOpenDetails}
       >
 
         <View
@@ -502,17 +625,24 @@ function TrackedAppCard({
           style={[
             styles.status,
             status ===
-              'warning' &&
+                'warning' &&
               styles.warning,
             status ===
-              'reached' &&
+                'reached' &&
               styles.reached,
+            status ===
+                'unverified' &&
+              styles.unverified,
           ]}
         >
           {status}
         </Text>
 
-      </View>
+        <Text style={styles.chevron}>
+          ›
+        </Text>
+
+      </Pressable>
 
       <Text style={styles.used}>
         Used:{' '}
@@ -527,6 +657,35 @@ function TrackedAppCard({
           app.dailyLimitSeconds
         )}
       </Text>
+
+      {
+        app.source === 'manual' && (
+          <Pressable
+            style={[
+              styles.timerButton,
+              isTimerRunning &&
+                styles.timerButtonActive,
+            ]}
+            onPress={
+              isTimerRunning
+                ? onStopTimer
+                : onStartTimer
+            }
+          >
+            <Text
+              style={[
+                styles.timerText,
+                isTimerRunning &&
+                  styles.timerTextActive,
+              ]}
+            >
+              {isTimerRunning
+                ? 'Stop timer'
+                : 'Start timer'}
+            </Text>
+          </Pressable>
+        )
+      }
 
       <View style={styles.actions}>
 
@@ -658,6 +817,16 @@ const styles =
       alignItems: 'center',
     },
 
+    chevron: {
+      marginLeft: 8,
+      fontSize: 22,
+      color: '#94A3B8',
+    },
+
+    unverified: {
+      color: '#64748B',
+    },
+
     icon: {
       width: 44,
       height: 44,
@@ -712,6 +881,28 @@ const styles =
       flexDirection: 'row',
       gap: 10,
       marginTop: 16,
+    },
+
+    timerButton: {
+      minHeight: 44,
+      marginTop: 14,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderRadius: 10,
+      backgroundColor: '#EDE9FE',
+    },
+
+    timerButtonActive: {
+      backgroundColor: '#DC2626',
+    },
+
+    timerText: {
+      color: '#6D28D9',
+      fontWeight: '700',
+    },
+
+    timerTextActive: {
+      color: '#FFFFFF',
     },
 
     editButton: {

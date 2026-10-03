@@ -1,6 +1,7 @@
 import type { SQLiteDatabase } from 'expo-sqlite';
 import { DATABASE_VERSION } from './schema';
 import { migrateToVersion1 } from './migrations/001_initial_schema';
+import { migrateToVersion2 } from './migrations/002_onboarding';
 
 export async function initializeDatabase(
   db: SQLiteDatabase
@@ -17,9 +18,13 @@ export async function initializeDatabase(
 
   if (currentVersion < 1) {
     await migrateToVersion1(db);
-
-    await db.execAsync(`
-      PRAGMA user_version = ${DATABASE_VERSION};
-    `);
   }
+
+  if (currentVersion < 2) {
+    await migrateToVersion2(db);
+  }
+
+  await db.execAsync(`
+    PRAGMA user_version = ${DATABASE_VERSION};
+  `);
 }

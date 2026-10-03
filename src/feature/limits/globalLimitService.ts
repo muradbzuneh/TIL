@@ -1,12 +1,21 @@
+import type {
+  SQLiteDatabase,
+} from 'expo-sqlite';
+
+import type {
+  GlobalSettings,
+} from '@/db/repositories';
+
+import {
+  getGlobalSettings,
+  updateGlobalSettings,
+} from '@/db/repositories';
+
 import {
   calculateProgress,
   calculateRemaining,
   getUsageStatus,
 } from '@/utils/usage';
-
-import type {
-  GlobalSettings,
-} from '@/db/repositories';
 
 import type {
   TrackedAppUsage,
@@ -93,4 +102,50 @@ export function buildGlobalUsage(
 
     status,
   };
+}
+
+/**
+ * Task 9 — global daily limit.
+ *
+ * Enables or replaces the combined limit that
+ * applies across every tracked app.
+ */
+export async function setGlobalLimit(
+  db: SQLiteDatabase,
+  dailyLimitSeconds: number
+): Promise<void> {
+
+  if (
+    dailyLimitSeconds <= 0
+  ) {
+    throw new Error(
+      'Global daily limit must be greater than zero.'
+    );
+  }
+
+  await updateGlobalSettings(
+    db,
+    dailyLimitSeconds,
+    true
+  );
+}
+
+/**
+ * Task 9 — turns the global limit off
+ * while keeping the last configured value.
+ */
+export async function disableGlobalLimit(
+  db: SQLiteDatabase
+): Promise<void> {
+
+  const current =
+    await getGlobalSettings(
+      db
+    );
+
+  await updateGlobalSettings(
+    db,
+    current.dailyLimitSeconds,
+    false
+  );
 }

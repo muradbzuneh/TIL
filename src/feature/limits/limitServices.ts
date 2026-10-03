@@ -47,13 +47,23 @@ export function buildTrackedAppUsage(
         )
       : 0;
 
+  /*
+   * A tracked app with no row for today cannot be
+   * trusted: either usage access is missing or the
+   * app simply has not been seen yet today.
+   *
+   * Unverified always wins so the UI never claims
+   * "normal" for data TIL does not actually have.
+   */
   const status =
-    isLimitEnabled
-      ? getUsageStatus(
-          usedSeconds,
-          app.dailyLimitSeconds
-        )
-      : 'normal';
+    usage === null
+      ? 'unverified'
+      : isLimitEnabled
+        ? getUsageStatus(
+            usedSeconds,
+            app.dailyLimitSeconds
+          )
+        : 'normal';
 
   return {
     id: app.id,
@@ -82,5 +92,8 @@ export function buildTrackedAppUsage(
 
     hasUsageData:
       usage !== null,
+
+    isLocked:
+      status === 'reached',
   };
 }

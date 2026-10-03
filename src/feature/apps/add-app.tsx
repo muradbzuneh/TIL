@@ -33,6 +33,7 @@ import {
   addInstalledApp,
   addManualApp,
   limitInputToSeconds,
+  manualAppSchema,
 } from '@/feature/apps';
 
 import type {
@@ -500,12 +501,23 @@ export default function AddAppScreen() {
               style={styles.continueButton}
               onPress={() => {
 
+                const parsed =
+                  manualAppSchema.safeParse(
+                    {
+                      appName:
+                        manualName,
+                    }
+                  );
+
                 if (
-                  !manualName.trim()
+                  !parsed.success
                 ) {
                   Alert.alert(
-                    'Name required',
-                    'Enter an app name.'
+                    'Invalid app name',
+                    parsed.error
+                      .issues[0]
+                      ?.message ??
+                      'Enter an app name.'
                   );
 
                   return;

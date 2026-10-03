@@ -136,6 +136,12 @@ export async function upsertSystemUsage(
   }
 ): Promise<void> {
 
+  const systemUsageSeconds =
+    Math.max(
+      0,
+      input.systemUsageSeconds
+    );
+
   const existing =
     await getDailyUsage(
       db,
@@ -147,7 +153,7 @@ export async function upsertSystemUsage(
     existing?.manualUsageSeconds ?? 0;
 
   const totalUsageSeconds =
-    input.systemUsageSeconds +
+    systemUsageSeconds +
     manualUsageSeconds;
 
   await db.runAsync(
@@ -167,6 +173,9 @@ export async function upsertSystemUsage(
       system_usage_seconds =
         excluded.system_usage_seconds,
 
+      manual_usage_seconds =
+        excluded.manual_usage_seconds,
+
       total_usage_seconds =
         excluded.total_usage_seconds,
 
@@ -175,11 +184,37 @@ export async function upsertSystemUsage(
     `,
     input.trackedAppId,
     input.date,
-    input.systemUsageSeconds,
+    systemUsageSeconds,
     manualUsageSeconds,
     totalUsageSeconds,
     input.lastSyncedAt ?? null
   );
+}
+
+/**
+ * Most recent usage rows for one tracked app.
+ *
+ * Powers the per-app details view.
+ */
+export async function getRecentDailyUsage(
+  db: SQLiteDatabase,
+  trackedAppId: number,
+  days = 7
+): Promise<DailyUsage[]> {
+  const rows =
+    await db.getAllAsync<DailyUsageRow>(
+      `
+      SELECT *
+      FROM daily_usage
+      WHERE tracked_app_id = ?
+      ORDER BY date DESC
+      LIMIT ?
+      `,
+      trackedAppId,
+      days
+    );
+
+  return rows.map(mapDailyUsage);
 }
 
 export async function addManualUsage(

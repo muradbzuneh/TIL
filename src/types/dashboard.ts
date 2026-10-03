@@ -24,6 +24,8 @@ export type TrackedAppUsage = {
   isLimitEnabled: boolean;
 
   hasUsageData: boolean;
+
+  isLocked: boolean;
 };
 
 export type GlobalUsageSummary = {
