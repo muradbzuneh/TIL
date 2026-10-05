@@ -1,0 +1,8 @@
+{
+  "name": "TIL (Time Is Limited) - App Usage & Screen Time Tracker",
+  "description": "Mobile screen time and app limit manager to track daily usage, enforce individual and combined limits, and prevent app overuse.",
+  "permissions": [],
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
